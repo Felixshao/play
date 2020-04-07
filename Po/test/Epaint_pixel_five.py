@@ -84,17 +84,24 @@ def gradient_color():
     screen = pygame.display.set_mode(SCREEN_SIZE, 0, 32)
     fullscreen = False
 
-    color1 = (221, 90, 20)
-    color2 = (96, 130, 51)
+    color1 = (127, 255, 255)
+    color2 = (255, 166, 0)
     factor = 0.
+    move_y = 0
 
     def blend_color(color1, color2, factor):
         """混合色"""
         r1, g1, b1 = color1
         r2, g2, b2 = color2
-        r = r1 + (r2 - r1) * factor
-        g = g1 + (g2 - g1) * factor
-        b = b1 + (b2 - b1) * factor
+        if factor > 1:
+            factor -= 1
+            r = r2 + (r1 - r2) * factor
+            g = g2 + (g1 - g2) * factor
+            b = b2 + (b1 - b2) * factor
+        else:
+            r = r1 + (r2 - r1) * factor
+            g = g1 + (g2 - g1) * factor
+            b = b1 + (b2 - b1) * factor
         return int(r), int(g), int(b)
 
     while True:
@@ -108,25 +115,53 @@ def gradient_color():
                         screen = pygame.display.set_mode(SCREEN_SIZE, FULLSCREEN, 32)
                     else:
                         screen = pygame.display.set_mode(SCREEN_SIZE, 0, 32)
-        tri = [(0, 120), (639, 100), (639, 140)]
+        tri = ((0, 120), (320, 100), (639, 120), (320, 140))
         screen.fill((255, 255, 255))
-        # 绘制任意多边形
-        pygame.draw.polygon(screen, (0, 255, 0), tri)
+        # 绘制任意多边形，传参：窗口对象或surface对象、填充颜色、 多边形每个角的坐标(list或tuple数据)
+        if factor > 1:
+            pygame.draw.polygon(screen, color1, tri)
+        else:
+            pygame.draw.polygon(screen, color2, tri)
         # 绘制圆形
-        pygame.draw.circle(screen, (0, 0, 0), (int(factor * 639.0), 120), 10)
+        pygame.draw.circle(screen, (0, 0, 0), (int(factor * 319.5), 120), 10)
 
         x, y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0]:
-            factor = x / 639.0
-
+            factor = x / 319.5
         color = blend_color(color1, color2, factor)
         pygame.display.set_caption('渐变色，color: {}'.format(color))
         pygame.draw.rect(screen, color, (0, 240, 640, 240))
         pygame.display.update()
 
 
+def colorful_background():
+    screen = pygame.display.set_mode(SCREEN_SIZE, 0, 32)
+    fullscreen = False
+    colors = [(255, 0, 0), (255, 165, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (160, 32, 240)]
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                exit()
+            if event.type == KEYDOWN:
+                if event.key == K_f:
+                    fullscreen = not fullscreen
+                    if fullscreen:
+                        screen = pygame.display.set_mode(SCREEN_SIZE, FULLSCREEN, 32)
+                    else:
+                        screen = pygame.display.set_mode(SCREEN_SIZE, 0, 32)
+        num = 0
+        
+        for color in colors:
+            move_y = int(SCREEN_SIZE[1]/7. * num)
+            pygame.draw.rect(screen, color, (0, move_y, 640, int(SCREEN_SIZE[1])/7))
+            num += 1
+
+        pygame.display.update()
+
+
 if __name__ == '__main__':
-    gradient_color()
+    colorful_background()
     # color_match()
 
 
